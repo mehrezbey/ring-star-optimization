@@ -1,8 +1,9 @@
 import numpy as np
-import random
+from utils import euclidean_distance
 
 
-def greedy_p_median(coordinates, p, n):
+def greedy_p_median(coordinates, p, n, distances):
+
     x_min = coordinates[:,0].min()
     x_max = coordinates[:,0].max()
     y_min = coordinates[:,1].min()
@@ -16,6 +17,7 @@ def greedy_p_median(coordinates, p, n):
             center_x = x_min + (i+0.5)*(x_max-x_min)/q
             center_y = y_min + (j+0.5)*(y_max-y_min)/q
 
+            # Corners of each rectangle
             min_x_corner = x_min + i*(x_max-x_min)/q
             max_x_corner = x_min + (i+1)*(x_max-x_min)/q
             min_y_corner = y_min + j*(y_max-y_min)/q
@@ -30,9 +32,12 @@ def greedy_p_median(coordinates, p, n):
                     contained.append(index)
 
             if contained:
-                distances = [np.linalg.norm(coordinates[index] - [center_x, center_y]) 
-                            for index in contained]
-                best_point_index = contained[np.argmin(distances)]
+                distances_to_center = [
+                    euclidean_distance(coordinates[index],[center_x, center_y])
+
+                    for index in contained
+                ]
+                best_point_index = contained[distances_to_center.index(min(distances_to_center))]
                 stations.append(best_point_index)
 
     if 0 not in stations:
@@ -45,17 +50,18 @@ def greedy_p_median(coordinates, p, n):
 
         for i in range(len(stations)):
             for j in range(i+1, len(stations)):
-                distance = np.linalg.norm(coordinates[stations[i]] - coordinates[stations[j]])
+                distance = distances[stations[i]][stations[j]]
                 if distance < min_distance : 
                     min_distance = distance
                     couple_to_merge = (i,j)
 
         stations.pop(couple_to_merge[1])
 
-    assigned_to = np.zeros(n)
+    assigned_to = np.zeros(n, dtype=int)
     cost = 0
 
     for index in range(n):
+
         if index in stations:
             assigned_to[index] = index
         else:
@@ -63,14 +69,14 @@ def greedy_p_median(coordinates, p, n):
             closest = 0
 
             for station_index in stations:
-                distance = np.linalg.norm(coordinates[index] - coordinates[station_index])
+                distance = euclidean_distance(coordinates[index], coordinates[station_index])
                 if distance < min_distance:
                     min_distance = distance
                     closest = station_index
 
             assigned_to[index]= closest
             cost+=min_distance
-
+    stations.sort()
     return {
         'stations': stations,
         'assignments': assigned_to,
@@ -78,7 +84,21 @@ def greedy_p_median(coordinates, p, n):
     }
 
 
+def nearest_neighbor_tsp(stations, distances):
+    unvisited = stations.copy()
+    current = unvisited.pop(0)
+    path = [current]
+    cost = 0
 
+    while unvisited:
+        distances_to_current = [distances[current][s] for s in unvisited]
 
-
-
+        nearest_station_index = distances_to_current.index(min(distances_to_current))
+        cost+=distances_to_current[nearest_station_index]
+        current = unvisited.pop(nearest_station_index)
+        path.append(current)
+    
+    return {
+        'path': path,
+        'cost': cost,
+    }
