@@ -24,6 +24,11 @@ def plot_solution(coordinates, stations, path, assignments, title="Solution"):
 
     plt.figure(figsize=(12, 10))
     
+    for i, point in enumerate(coordinates):
+        x = point[0]
+        y = point[1]
+        plt.text(x, y, str(i), fontsize=14, ha='right')
+
     # All points
     all_indices = list(range(len(coordinates)))
     non_stations = [i for i in all_indices if i not in stations]
