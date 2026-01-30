@@ -3,13 +3,13 @@ from data_loader import load_tsp_file
 from heuristics import greedy_p_median, nearest_neighbor_tsp, two_opt
 from visualization import plot_points, plot_solution
 from plne_compact import solve_ring_star_plne, build_cycle_from_edges
-
+import time
 
 def main():
     p=10
     file_name= "berlin52.tsp"
     exec_data = []
-
+    start_time_heuristique= time.time()
     coordinates, distances, n = load_tsp_file("../data/att48.tsp")
     res_greedy_p_median = greedy_p_median(coordinates,10,n,distances)
     res_tsp = nearest_neighbor_tsp(res_greedy_p_median["stations"],distances)
