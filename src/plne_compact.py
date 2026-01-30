@@ -5,7 +5,7 @@ import time
 # PLNE COMPACTE — PROBLÈME ANNEAU-ÉTOILE
 # ============================================================
 
-def solve_ring_star_plne(points, d, p, alpha=1.0, time_limit=5):
+def solve_ring_star_plne(points, d, p, alpha=1.0, time_limit=30):
 
     n = len(points)
     V = list(range(n))
@@ -89,7 +89,9 @@ def solve_ring_star_plne(points, d, p, alpha=1.0, time_limit=5):
     # =====================
     stations = [i for i in V if pulp.value(y[i]) > 0.5]
 
-    assignments = {}
+    # assignments sous forme de liste
+    assignments = [None] * n
+
     for i in V:
         for j in V:
             if pulp.value(a[i][j]) > 0.5:
@@ -97,10 +99,18 @@ def solve_ring_star_plne(points, d, p, alpha=1.0, time_limit=5):
                 break
 
     cycle = [(i, j) for (i, j) in E if pulp.value(x[(i, j)]) > 0.5]
+    cost_cycle = sum(
+        d[i][j] for (i, j) in cycle
+    )
 
+    # coût des affectations
+    cost_assign = sum(
+        d[i][assignments[i]] for i in V
+    )
     return {
         "status": pulp.LpStatus[model.status],
-        "cost": pulp.value(model.objective),
+        "cost": cost_cycle,
+        "cost2": cost_assign,
         "stations": stations,
         "assignments": assignments,
         "cycle": cycle,

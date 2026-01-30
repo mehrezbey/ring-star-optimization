@@ -31,7 +31,7 @@ def evaluate_solution(stations, coordinates, distances, n):
 def neighbor(stations, n):
     all_points = list(range(n))
 
-    s_out = random.choice(stations)
+    s_out = random.choice([s for s in stations if s != 0])
     s_in = random.choice(list(set(all_points) - set(stations)))
 
     new_stations = stations.copy()
