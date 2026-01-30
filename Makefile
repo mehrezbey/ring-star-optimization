@@ -15,4 +15,4 @@ run:
 
 clean:
 	rm -rf $(PKGDIR) _pycache_ *.pyc
-	rm -f src/results.csv
+	rm -f results.csv
