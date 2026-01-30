@@ -1,5 +1,6 @@
 import numpy as np
 from utils import euclidean_distance
+import time
 
 
 def greedy_p_median(coordinates, p, n, distances):
@@ -107,26 +108,35 @@ def nearest_neighbor_tsp(stations, distances):
 def two_opt(path, distances):
     n = len(path)
     improved = True
-    
+
     while improved:
         improved = False
-        for i in range(n - 1):
-            for j in range(i + 2, n - 1):
-                current = distances[path[i]][path[i+1]] + distances[path[j]][path[j+1]]                
-                new = distances[path[i]][path[j]] + distances[path[i+1]][path[j+1]]
-                
-                if new < current:
-                    path[i+1:j+1] = path[i+1:j+1][::-1]
-                    improved = True
-                    break
-    cost = 0
-    for index in range(len(path)-1):
-        current_station = path[index]
-        next_station = path[index+1]
-        cost+=distances[current_station][next_station]
-        
-    return {
-        "path":path,
-        "cost":cost
-    }
+        best_delta = 0
+        best_i, best_j = None, None
 
+        for i in range(n - 2):
+            for j in range(i + 2, n):
+                if i == 0 and j == n - 1:
+                    continue
+
+                a, b = path[i], path[i + 1]
+                c, d = path[j], path[(j + 1) % n]
+
+                delta = (
+                    distances[a][c] + distances[b][d]
+                    - distances[a][b] - distances[c][d]
+                )
+
+                if delta < best_delta:
+                    best_delta = delta
+                    best_i, best_j = i, j
+
+        if best_delta < 0:
+            path[best_i+1:best_j+1] = reversed(path[best_i+1:best_j+1])
+            improved = True
+
+    cost = sum(
+        distances[path[i]][path[(i+1) % n]] for i in range(n)
+    )
+
+    return {"path": path, "cost": cost}

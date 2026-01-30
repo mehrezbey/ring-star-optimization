@@ -24,7 +24,7 @@ def load_tsp_file(path):
         return coordinates, distances, n
     
     except FileNotFoundError:
-        print(f"Error: File not found.")
+        print(f"Error File not found.")
         return None
     
     except Exception as e:
