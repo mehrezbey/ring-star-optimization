@@ -89,7 +89,9 @@ def solve_ring_star_plne(points, d, p, alpha=1.0, time_limit=5):
     # =====================
     stations = [i for i in V if pulp.value(y[i]) > 0.5]
 
-    assignments = {}
+    # assignments sous forme de liste
+    assignments = [None] * n
+
     for i in V:
         for j in V:
             if pulp.value(a[i][j]) > 0.5:
